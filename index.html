@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vault - Premium Lost & Found Platform</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+</head>
+<body>
+    <div id="navbar"></div>
+
+
+    <main>
+        <section class="hero">
+            <div class="hero-content">
+                <h1>Welcome to Vault</h1>
+                <p>The Premium Lost & Found Platform</p>
+                <a href="report-item.html" class="cta-button">Report an Item</a>
+            </div>
+        </section>
+
+        <section class="features">
+            <div class="feature-card">
+                <i class="fas fa-search fa-3x"></i>
+                <h2>Find Lost Items</h2>
+                <p>Easily search our extensive database of lost items to find your belongings.</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-hand-holding-heart fa-3x"></i>
+                <h2>Report Found Items</h2>
+                <p>Help others by reporting items you've found and connect with the owners.</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-comments fa-3x"></i>
+                <h2>Secure Communication</h2>
+                <p>Connect safely with item finders or owners through our platform.</p>
+            </div>
+        </section>
+
+        <section class="how-it-works">
+            <h2>How It Works</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>Report</h3>
+                    <p>Report your lost item or a found item with detailed information.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>Search</h3>
+                    <p>Search our database for matching items or wait for notifications.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>Connect</h3>
+                    <p>Securely connect with the finder or owner to retrieve the item.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="testimonials">
+            <h2>What Our Users Say</h2>
+            <div class="testimonial-container">
+                <div class="testimonial">
+                    <img src="" alt="User 1" class="testimonial-image">
+                    <p>"Vault helped me find my lost laptop within days. The platform is so easy to use!"</p>
+                    <h4>Sarah M.</h4>
+                </div>
+                <div class="testimonial">
+                    <img src="" alt="User 2" class="testimonial-image">
+                    <p>"I found a wallet and Vault made it simple to connect with the owner. Great service!"</p>
+                    <h4>John D.</h4>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>About Vault</h3>
+                <p>Vault is the premium lost and found platform, dedicated to reuniting people with their lost belongings efficiently and securely.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="#">FAQ</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Terms of Service</a></li>
+                    <li><a href="#">Contact Us</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Connect With Us</h3>
+                <div class="social-icons">
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-linkedin"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2023 Vault. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="firebase-config.js"></script>
+    <script src="auth.js"></script>
+    <script src="app.js"></script>
+    <script>
+        fetch("navbar.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("navbar").innerHTML = data);
+    </script>
+</body>
+</html>
+

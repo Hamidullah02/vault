@@ -9,7 +9,7 @@ body {
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   line-height: 1.6;
   color: #333;
-  background-color: #f8f9fa;
+  background-color: #d1e7e78b;
 }
 
 
@@ -19,8 +19,8 @@ main {
 }
 
 .hero {
-  background: linear-gradient(rgba(52, 152, 219, 0.8), rgba(52, 152, 219, 0.8)),
-    url("https://source.unsplash.com/1600x900/?lost-and-found") no-repeat center center / cover;
+  background: linear-gradient(rgba(88, 138, 176, 0.8), rgba(37, 38, 39, 0.508)),
+    url("assets/bg1.jpg") no-repeat center center / cover;
   color: #fff;
   text-align: center;
   padding: 100px 0;

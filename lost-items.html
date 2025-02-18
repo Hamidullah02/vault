@@ -102,9 +102,16 @@
 
 
 <script>
-    fetch("navbar.html")
-        .then(response => response.text())
-        .then(data => document.getElementById("navbar").innerHTML = data);
+     fetch("navbar.html")
+    .then(response => response.text())
+    .then(data => {
+        document.getElementById("navbar").innerHTML = data;
+        document.querySelectorAll("#navbar script").forEach(script => {
+            let newScript = document.createElement("script");
+            newScript.textContent = script.textContent;
+            document.body.appendChild(newScript);
+        });
+    });
 </script>
 
 

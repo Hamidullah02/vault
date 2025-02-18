@@ -9,7 +9,6 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
 </head>
 <body>
     <div id="navbar"></div>
@@ -67,14 +66,14 @@
             <h2>What Our Users Say</h2>
             <div class="testimonial-container">
                 <div class="testimonial">
-                    <img src="" alt="User 1" class="testimonial-image">
+                    <!-- <img src="" alt="User 1" class="testimonial-image"> -->
                     <p>"Vault helped me find my lost laptop within days. The platform is so easy to use!"</p>
-                    <h4>Sarah M.</h4>
+                    <h4>sazib h.</h4>
                 </div>
                 <div class="testimonial">
-                    <img src="" alt="User 2" class="testimonial-image">
+                    <!-- <img src="" alt="User 2" class="testimonial-image"> -->
                     <p>"I found a wallet and Vault made it simple to connect with the owner. Great service!"</p>
-                    <h4>John D.</h4>
+                    <h4>raktim chy.</h4>
                 </div>
             </div>
         </section>
@@ -110,14 +109,30 @@
         </div>
     </footer>
 
-    <script src="firebase-config.js"></script>
     <script src="auth.js"></script>
     <script src="app.js"></script>
     <script>
         fetch("navbar.html")
-            .then(response => response.text())
-            .then(data => document.getElementById("navbar").innerHTML = data);
+    .then(response => response.text())
+    .then(data => {
+        document.getElementById("navbar").innerHTML = data;
+        document.querySelectorAll("#navbar script").forEach(script => {
+            let newScript = document.createElement("script");
+            newScript.textContent = script.textContent;
+            document.body.appendChild(newScript);
+        });
+    });
+
+
     </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
 

@@ -14,13 +14,11 @@ try {
     firebase.initializeApp(firebaseConfig);
     auth = firebase.auth();
     db = firebase.firestore();
-    alert('Connected to Firebase successfully!');
 } catch (error) {
     console.error('Firebase initialization failed:', error);
     alert(`Failed to connect to Firebase: ${error.message}`);
 }
 
-// CRUD FUNCTIONS
 
 // Create Item
 const reportItemForm = document.getElementById('report-item-form');
@@ -36,7 +34,6 @@ reportItemForm.addEventListener('submit', async (e) => {
             userId: auth.currentUser ? auth.currentUser.uid : 'anonymous',
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
-        alert('Item reported successfully!');
         window.location.href = 'index.html';
     } catch (error) {
         console.error('Error reporting item:', error);

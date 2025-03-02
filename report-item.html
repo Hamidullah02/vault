@@ -114,6 +114,15 @@
     <script src="auth.js"></script>
     <script>
 
+
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                fetchUserData(user.uid);
+            } else {
+                window.location.href = "login.html";
+            }
+        });
+
 const addImageUrlButton = document.getElementById('add-image-url');
 const imageUrlContainer = document.getElementById('image-url-container');
 

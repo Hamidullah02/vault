@@ -1,5 +1,4 @@
 window.onload = function () {
-  // Firebase Initialization (Only once)
   const firebaseConfig = {
     apiKey: "AIzaSyAEEurR0FMrMt_2HwfTR6C2Db6KDvmfTaE",
     authDomain: "vault-2c2cd.firebaseapp.com",
@@ -48,7 +47,6 @@ window.onload = function () {
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
 
-        alert("Signed up successfully!");
         window.location.href = 'index.html';
       } catch (error) {
         signErrorMessage.innerText = error.message;
@@ -67,7 +65,6 @@ window.onload = function () {
 
       auth.signInWithEmailAndPassword(email, password)
         .then(userCredential => {
-          alert("Logged in successfully!");
           window.location.href = 'index.html';
         })
         .catch(error => {

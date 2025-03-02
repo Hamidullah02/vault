@@ -9,7 +9,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>   
+    
 </head>
 <body>
     <div id="navbar"></div>
@@ -18,65 +18,36 @@
         <div id="item-details-container">
             <h2 id="item-name"></h2>
             
-            <div id="item-gallery">
-                <div id="item-images-container" class="gallery-images"></div>
+            <div class="gallery-container">
+                <div id="item-images-container"></div>
                 <div class="gallery-nav">
-                    <button id="prev-img" class="gallery-btn"><i class="fas fa-chevron-left"></i></button>
-                    <div id="img-indicators"></div>
-                    <button id="next-img" class="gallery-btn"><i class="fas fa-chevron-right"></i></button>
+                    <button class="nav-btn" id="prev-btn"><i class="fas fa-chevron-left"></i></button>
+                    <div id="dots-container"></div>
+                    <button class="nav-btn" id="next-btn"><i class="fas fa-chevron-right"></i></button>
                 </div>
             </div>
             
             <table id="item-details-table">
-                <tr>
-                    <th>Category</th>
-                    <td id="item-category"></td>
-                </tr>
-                <tr>
-                    <th>Color</th>
-                    <td id="item-color"></td>
-                </tr>
-                <tr>
-                    <th>Brand</th>
-                    <td id="item-brand"></td>
-                </tr>
-                <tr>
-                    <th>Unique Features</th>
-                    <td id="item-uniqueFeatures"></td>
-                </tr>
-                <tr>
-                    <th>Reward</th>
-                    <td id="item-reward"></td>
-                </tr>
-                <tr>
-                    <th>Alternate Contact</th>
-                    <td id="item-altContact"></td>
-                </tr>
-                <tr>
-                    <th>Landmark</th>
-                    <td id="item-landmark"></td>
-                </tr>
-                <tr>
-                    <th>Last Seen</th>
-                    <td id="item-location"></td>
-                </tr>
-                <tr>
-                    <th>Date</th>
-                    <td id="item-date"></td>
-                </tr>
-                <tr>
-                    <th>Time</th>
-                    <td id="item-time"></td>
-                </tr>
-                <tr>
-                    <th>Notes</th>
-                    <td id="item-notes"></td>
-                </tr>
+                <tr><th>Category</th><td id="item-category"></td></tr>
+                <tr><th>Color</th><td id="item-color"></td></tr>
+                <tr><th>Brand</th><td id="item-brand"></td></tr>
+                <tr><th>Unique Features</th><td id="item-uniqueFeatures"></td></tr>
+                <tr><th>Reward</th><td id="item-reward"></td></tr>
+                <tr><th>Alternate Contact</th><td id="item-altContact"></td></tr>
+                <tr><th>Landmark</th><td id="item-landmark"></td></tr>
+                <tr><th>Last Seen</th><td id="item-location"></td></tr>
+                <tr><th>Date</th><td id="item-date"></td></tr>
+                <tr><th>Time</th><td id="item-time"></td></tr>
+                <tr><th>Notes</th><td id="item-notes"></td></tr>
             </table>
             
             <div class="action-buttons">
-                <button id="contact-owner" class="btn primary-btn"><i class="fas fa-envelope"></i> Contact Owner</button>
-                <button id="back-to-list" class="btn secondary-btn"><i class="fas fa-arrow-left"></i> Back to List</button>
+                <button id="contact-btn" class="btn primary-btn">
+                    <i class="fas fa-envelope"></i> Chat
+                </button>
+                <button id="back-btn" class="btn secondary-btn">
+                    <i class="fas fa-arrow-left"></i> Back to List
+                </button>
             </div>
         </div>
     </main>
@@ -86,192 +57,162 @@
     <script src="auth.js"></script>
     <script src="script.js"></script>
     <script>
-        // Item ID for direct database query
-        let itemId = getQueryParam('id');
-        let currentImageIndex = 0;
-        let imageUrls = [];
+        let currentIndex = 0;
+        let images = [];
 
-        // Function to get URL parameters
-        function getQueryParam(param) {
-            const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get(param) || '';
+        // Get URL parameter
+        function getParam(param) {
+            return new URLSearchParams(window.location.search).get(param) || '';
         }
 
-        // Function to display item details from Firebase
-        function displayItemDetails(itemId) {
+        // Display item details
+        function displayItem(itemId) {
             if (!itemId) {
-                console.error("No item ID provided");
-                displayItemFromParams(); // Fallback to URL params
+                loadFromParams();
                 return;
             }
 
             db.collection('items').doc(itemId).get()
-                .then((doc) => {
+                .then(doc => {
                     if (doc.exists) {
-                        const item = doc.data();
-                        populateItemDetails(item);
+                        updateUI(doc.data());
                     } else {
-                        console.error("No such document!");
-                        displayItemFromParams(); // Fallback to URL params
+                        loadFromParams();
                     }
                 })
-                .catch((error) => {
-                    console.error("Error getting document:", error);
-                    displayItemFromParams(); // Fallback to URL params
-                });
+                .catch(() => loadFromParams());
         }
 
-        // Function to display item from URL parameters (fallback method)
-        function displayItemFromParams() {
-            document.getElementById('item-name').innerText = getQueryParam('name') || 'Item Name Not Available';
-            document.getElementById('item-category').innerText = getQueryParam('category') || 'N/A';
-            document.getElementById('item-color').innerText = getQueryParam('color') || 'N/A';
-            document.getElementById('item-brand').innerText = getQueryParam('brand') || 'N/A';
-            document.getElementById('item-uniqueFeatures').innerText = getQueryParam('uniqueFeatures') || 'N/A';
-            document.getElementById('item-reward').innerText = getQueryParam('reward') || 'N/A';
-            document.getElementById('item-altContact').innerText = getQueryParam('altContact') || 'N/A';
-            document.getElementById('item-landmark').innerText = getQueryParam('landmark') || 'N/A';
-            document.getElementById('item-location').innerText = getQueryParam('location') || 'N/A';
-            document.getElementById('item-date').innerText = getQueryParam('date') || 'N/A';
-            document.getElementById('item-time').innerText = getQueryParam('time') || 'N/A';
-            document.getElementById('item-notes').innerText = getQueryParam('notes') || 'N/A';
+        function loadFromParams() {
+            const fields = {
+                name: 'item-name',
+                category: 'item-category',
+                color: 'item-color',
+                brand: 'item-brand',
+                uniqueFeatures: 'item-uniqueFeatures',
+                reward: 'item-reward',
+                altContact: 'item-altContact',
+                landmark: 'item-landmark',
+                location: 'item-location',
+                date: 'item-date',
+                time: 'item-time',
+                notes: 'item-notes'
+            };
 
-            // Get image URLs from parameters
-            const imageParam = getQueryParam('imageUrls');
-            if (imageParam) {
-                imageUrls = imageParam.split(',').filter(url => url.trim() !== '');
-                if (imageUrls.length === 0) {
-                    imageUrls = ['https://via.placeholder.com/400x300?text=No+Image+Available'];
-                }
-                setupImageGallery();
-            } else {
-                imageUrls = ['https://via.placeholder.com/400x300?text=No+Image+Available'];
-                setupImageGallery();
+            Object.entries(fields).forEach(([param, id]) => {
+                const value = getParam(param);
+                document.getElementById(id).textContent = value || 'N/A';
+            });
+
+            const imageUrls = getParam('imageUrls');
+            images = imageUrls ? imageUrls.split(',').filter(url => url.trim()) : [];
+            if (!images.length) {
+                images = ['https://via.placeholder.com/400x300?text=No+Image'];
             }
+            setupGallery();
         }
 
-        // Function to populate item details from Firestore data
-        function populateItemDetails(item) {
-            document.getElementById('item-name').innerText = item.name || 'Item Name Not Available';
-            document.getElementById('item-category').innerText = item.category || 'N/A';
-            document.getElementById('item-color').innerText = item.color || 'N/A';
-            document.getElementById('item-brand').innerText = item.brand || 'N/A';
-            document.getElementById('item-uniqueFeatures').innerText = item.uniqueFeatures || 'N/A';
-            document.getElementById('item-reward').innerText = item.reward || 'N/A';
-            document.getElementById('item-altContact').innerText = item.altContact || item.alternateContact || 'N/A';
-            document.getElementById('item-landmark').innerText = item.landmark || 'N/A';
-            document.getElementById('item-location').innerText = item.location || 'N/A';
-            document.getElementById('item-date').innerText = item.date || 'N/A';
-            document.getElementById('item-time').innerText = item.time || 'N/A';
-            document.getElementById('item-notes').innerText = item.notes || 'N/A';
+        function updateUI(data) {
+            const fields = {
+                name: 'item-name',
+                category: 'item-category',
+                color: 'item-color',
+                brand: 'item-brand',
+                uniqueFeatures: 'item-uniqueFeatures',
+                reward: 'item-reward',
+                altContact: 'item-altContact',
+                landmark: 'item-landmark',
+                location: 'item-location',
+                date: 'item-date',
+                time: 'item-time',
+                notes: 'item-notes'
+            };
 
-            // Get image URLs from Firestore
-            if (item.imageUrls && Array.isArray(item.imageUrls) && item.imageUrls.length > 0) {
-                imageUrls = item.imageUrls;
-            } else {
-                imageUrls = ['https://via.placeholder.com/400x300?text=No+Image+Available'];
-            }
-            setupImageGallery();
+            Object.entries(fields).forEach(([key, id]) => {
+                document.getElementById(id).textContent = data[key] || 'N/A';
+            });
+
+            images = data.imageUrls?.length ? data.imageUrls : ['https://via.placeholder.com/400x300?text=No+Image'];
+            setupGallery();
         }
 
-        // Function to set up the image gallery
-        function setupImageGallery() {
-            const imagesContainer = document.getElementById('item-images-container');
-            const imgIndicators = document.getElementById('img-indicators');
-            imagesContainer.innerHTML = '';
-            imgIndicators.innerHTML = '';
+        function setupGallery() {
+            const container = document.getElementById('item-images-container');
+            const dotsContainer = document.getElementById('dots-container');
             
-            // Create all image elements but only show the current one
-            imageUrls.forEach((url, index) => {
-                let img = document.createElement('img');
+            container.innerHTML = '';
+            dotsContainer.innerHTML = '';
+
+            images.forEach((url, index) => {
+                const img = document.createElement('img');
                 img.src = url;
-                img.alt = `Item Image ${index + 1}`;
                 img.className = 'gallery-img';
-                img.style.display = index === currentImageIndex ? 'block' : 'none';
-                imagesContainer.appendChild(img);
-                
-                //  indicator dot
-                let dot = document.createElement('span');
-                dot.className = 'img-indicator' + (index === currentImageIndex ? ' active' : '');
-                dot.dataset.index = index;
-                dot.addEventListener('click', () => {
-                    showImage(parseInt(index));
-                });
-                imgIndicators.appendChild(dot);
+                img.style.display = index === 0 ? 'block' : 'none';
+                container.appendChild(img);
+
+                //  dot
+                const dot = document.createElement('span');
+                dot.className = `dot ${index === 0 ? 'active' : ''}`;
+                dot.onclick = () => showImage(index);
+                dotsContainer.appendChild(dot);
             });
-            
-            // Set up navigation buttons
-            document.getElementById('prev-img').addEventListener('click', () => {
-                showImage(currentImageIndex - 1);
-            });
-            
-            document.getElementById('next-img').addEventListener('click', () => {
-                showImage(currentImageIndex + 1);
-            });
-            
-            // Show/hide navigation buttons based on number of images
-            const galleryNav = document.querySelector('.gallery-nav');
-            galleryNav.style.display = imageUrls.length > 1 ? 'flex' : 'none';
+
+            document.querySelector('.gallery-nav').style.display = 
+                images.length > 1 ? 'flex' : 'none';
         }
-        
-        // Function to show a specific image
+
+        // Show specific image
         function showImage(index) {
-            if (index < 0) index = imageUrls.length - 1;
-            if (index >= imageUrls.length) index = 0;
-            
-            const images = document.querySelectorAll('.gallery-img');
-            const indicators = document.querySelectorAll('.img-indicator');
-            
-            images.forEach((img, i) => {
-                img.style.display = i === index ? 'block' : 'none';
-            });
-            
-            indicators.forEach((dot, i) => {
-                dot.className = 'img-indicator' + (i === index ? ' active' : '');
-            });
-            
-            currentImageIndex = index;
+            const imgs = document.querySelectorAll('.gallery-img');
+            const dots = document.querySelectorAll('.dot');
+
+            if (index >= imgs.length) index = 0;
+            if (index < 0) index = imgs.length - 1;
+
+            imgs.forEach((img, i) => img.style.display = i === index ? 'block' : 'none');
+            dots.forEach((dot, i) => dot.className = `dot ${i === index ? 'active' : ''}`);
+
+            currentIndex = index;
         }
 
-        // Setup action buttons
-        function setupActionButtons() {
-            document.getElementById('back-to-list').addEventListener('click', () => {
-                window.location.href = 'lost-items.html';
-            });
-            
-            document.getElementById('contact-owner').addEventListener('click', () => {
-                const altContact = document.getElementById('item-altContact').innerText;
-                if (altContact && altContact !== 'N/A') {
-                    alert(`Contact the owner at: ${altContact}`);
-                } else {
-                    alert('No contact information available. Please use your account details to contact.');
-                }
-            });
-        }
-
-        // Load navbar
-        fetch("navbar.html")
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById("navbar").innerHTML = data;
-                document.querySelectorAll("#navbar script").forEach(script => {
-                    let newScript = document.createElement("script");
-                    newScript.textContent = script.textContent;
-                    document.body.appendChild(newScript);
-                });
-            });
-            
-            fetch("footer.html")
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById("footer").innerHTML = data;
-            });
-            
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
-            displayItemDetails(itemId);
-            setupActionButtons();
+            // Load item
+            displayItem(getParam('id'));
+
+            document.getElementById('prev-btn').onclick = () => showImage(currentIndex - 1);
+            document.getElementById('next-btn').onclick = () => showImage(currentIndex + 1);
+            document.getElementById('back-btn').onclick = () => window.location.href = 'lost-items.html';
+            document.getElementById('contact-btn').onclick = () => {
+                const contact = document.getElementById('item-altContact').textContent;
+                alert(contact !== 'N/A' ? 
+                    `Contact the owner at: ${contact}` : 
+                    'No contact information available.');
+            };
+
+            // Keyboard navigation
+            document.addEventListener('keydown', e => {
+                if (e.key === 'ArrowLeft') showImage(currentIndex - 1);
+                if (e.key === 'ArrowRight') showImage(currentIndex + 1);
+            });
+
+            // navbar and footer
+            fetch("navbar.html")
+                .then(res => res.text())
+                .then(html => {
+                    document.getElementById("navbar").innerHTML = html;
+                    document.querySelectorAll("#navbar script").forEach(script => {
+                        const newScript = document.createElement("script");
+                        newScript.textContent = script.textContent;
+                        document.body.appendChild(newScript);
+                    });
+                });
+
+            fetch("footer.html")
+                .then(res => res.text())
+                .then(html => document.getElementById("footer").innerHTML = html);
         });
     </script>
 </body>
 </html>
+

@@ -14,17 +14,12 @@
 
     <main>
         <div id="user-profile-container">
-            <img id="user-profile-pic" src="https://via.placeholder.com/120" alt="Profile Picture">
             <h2 id="user-name"></h2>
 
             <table id="user-info-table">
                 <tr>
                     <th>Email</th>
                     <td id="user-email"></td>
-                </tr>
-                <tr>
-                    <th>Contact</th>
-                    <td id="user-contact"></td>
                 </tr>
                 <tr>
                     <th>Joined On</th>
@@ -73,15 +68,12 @@
         });
 
         function fetchUserData(userId) {
-            // Fetch user data from Firestore
             db.collection("users").doc(userId).get().then(doc => {
                 if (doc.exists) {
                     const userData = doc.data();
-                    document.getElementById("user-profile-pic").src = userData.profilePic || "https://via.placeholder.com/120";
                     document.getElementById("user-name").innerText = userData.name || "No Name";
                     document.getElementById("user-email").innerText = userData.email;
-                    document.getElementById("user-contact").innerText = userData.contact || "N/A";
-                    document.getElementById("user-joined").innerText = userData.joined || "Unknown";
+                    document.getElementById("user-joined").innerText = userData.createdAt || "Unknown";
                 }
             });
 
@@ -92,7 +84,7 @@
                     const item = doc.data();
                     const row = `
                         <tr>
-                            <td><img src="${item.imageUrl || 'https://via.placeholder.com/50'}" width="50"></td>
+                            <td><img style="height:100px;width:auto;" src="${item.imageUrls && item.imageUrls.length ? item.imageUrls[0] : 'https://via.placeholder.com/150'}" alt="${item.name}"></td>
                             <td>${item.name}</td>
                             <td>${item.category}</td>
                             <td>${item.date}</td>

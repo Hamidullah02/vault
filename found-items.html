@@ -44,18 +44,19 @@
     itemElement.className = 'item';
 
     // Construct a URL with query parameters for item details
-    const detailsURL = `item-details.html?id=${doc.id}&name=${encodeURIComponent(item.name)}&location=${encodeURIComponent(item.location)}&date=${encodeURIComponent(item.date)}&imageUrl=${encodeURIComponent(item.imageUrl || 'https://via.placeholder.com/150')}&category=${encodeURIComponent(item.category || '')}&color=${encodeURIComponent(item.color || '')}&brand=${encodeURIComponent(item.brand || '')}&uniqueFeatures=${encodeURIComponent(item.uniqueFeatures || '')}&reward=${encodeURIComponent(item.reward || '')}&altContact=${encodeURIComponent(item.altContact || '')}&landmark=${encodeURIComponent(item.landmark || '')}&time=${encodeURIComponent(item.time || '')}&notes=${encodeURIComponent(item.notes || '')}`;
+    const detailsURL = `item-details.html?id=${doc.id}&name=${encodeURIComponent(item.name)}&location=${encodeURIComponent(item.location)}&date=${encodeURIComponent(item.date)}&imageUrls=${encodeURIComponent(item.imageUrls && Array.isArray(item.imageUrls) ? item.imageUrls.join(',') : 'https://via.placeholder.com/150')}&category=${encodeURIComponent(item.category || '')}&color=${encodeURIComponent(item.color || '')}&brand=${encodeURIComponent(item.brand || '')}&uniqueFeatures=${encodeURIComponent(item.uniqueFeatures || '')}&reward=${encodeURIComponent(item.reward || '')}&altContact=${encodeURIComponent(item.altContact || '')}&landmark=${encodeURIComponent(item.landmark || '')}&time=${encodeURIComponent(item.time || '')}&notes=${encodeURIComponent(item.notes || '')}`;
 
-    itemElement.innerHTML = `
-        <img src="${item.imageUrl || 'https://via.placeholder.com/150'}" alt="${item.name}">
-        <h3>${item.name}</h3>
-        <p><i class="fas fa-map-marker-alt"></i> Last seen: ${item.location}</p>
-        <p><i class="far fa-calendar-alt"></i> Date: ${item.date}</p>
-        <a href="${detailsURL}" class="btn">More Info</a>
-    `;
+itemElement.innerHTML = `
+    <img src="${item.imageUrls && item.imageUrls.length ? item.imageUrls[0] : 'https://via.placeholder.com/150'}" alt="${item.name}">
+    <h3>${item.name}</h3>
+    <p><i class="fas fa-map-marker-alt"></i> Last seen: ${item.location}</p>
+    <p><i class="far fa-calendar-alt"></i> Date: ${item.date}</p>
+    <a href="${detailsURL}" class="btn">More Info</a>
+`;
 
-    itemGrid.appendChild(itemElement);
-}
+itemGrid.appendChild(itemElement);
+        }
+
 
 
         function fetchLostItems(queryText = '') {

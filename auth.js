@@ -76,18 +76,6 @@ window.onload = function () {
     });
   }
 
-  // // Handle Logout
-  // const logoutBtn = document.getElementById("logout-btn");
-  // if (logoutBtn) {
-  //   logoutBtn.addEventListener("click", () => {
-  //     auth.signOut().then(() => {
-  //       alert("Logged out successfully!");
-  //       logoutBtn.style.display = "none";
-  //     }).catch(error => {
-  //       console.error("Error logging out: ", error);
-  //     });
-  //   });
-  // }
 
   // Check Auth State
   auth.onAuthStateChanged(user => {
@@ -105,4 +93,50 @@ window.onload = function () {
       }
     }
   });
+
+
+
+
+
+
+
+   // Navbar Logic
+  auth.onAuthStateChanged((user) => {
+    const loginLink = document.getElementById("loginLink");
+    const profileDropdown = document.getElementById("profileDropdown");
+    const loadingSpinner = document.getElementById("loadingSpinner");
+    const useremail = document.getElementById("useremail");
+
+    if (loadingSpinner) {
+      loadingSpinner.style.display = "none";
+    }
+
+    if (user) {
+      if (useremail) useremail.innerHTML = user.email || "useremail";
+      if (loginLink) loginLink.style.display = "none";
+      if (profileDropdown) profileDropdown.style.display = "inline-block";
+    } else {
+      if (profileDropdown) profileDropdown.style.display = "none";
+      if (loginLink) loginLink.style.display = "inline-block";
+    }
+  });
+
+  setTimeout(() => {
+    const logoutLink = document.getElementById("logoutLink");
+    if (logoutLink) {
+      logoutLink.addEventListener("click", () => {
+        auth.signOut()
+          .then(() => {
+            window.location.href = "index.html"; 
+          })
+          .catch((error) => {
+            console.error("Error logging out:", error);
+          });
+      });
+    }
+  }, 1000);
+
+
+
+
 };

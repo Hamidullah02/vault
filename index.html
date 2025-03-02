@@ -79,7 +79,7 @@
         </section>
     </main>
 
-    <footer>
+    <!-- <footer>
         <div class="footer-content">
             <div class="footer-section">
                 <h3>About Vault</h3>
@@ -105,26 +105,33 @@
             </div>
         </div>
         <div class="footer-bottom">
-            <p>&copy; 2023 Vault. All rights reserved.</p>
+            <p>&copy; 2025 Vault. All rights reserved.</p>
         </div>
-    </footer>
+    </footer> -->
+
+<div id="footer"></div>
 
     <script src="auth.js"></script>
     <script src="app.js"></script>
     <script>
         fetch("navbar.html")
-    .then(response => response.text())
-    .then(data => {
-        document.getElementById("navbar").innerHTML = data;
-        document.querySelectorAll("#navbar script").forEach(script => {
-            let newScript = document.createElement("script");
-            newScript.textContent = script.textContent;
-            document.body.appendChild(newScript);
-        });
-    });
-
-
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById("navbar").innerHTML = data;
+                document.querySelectorAll("#navbar script").forEach(script => {
+                    let newScript = document.createElement("script");
+                    newScript.textContent = script.textContent;
+                    document.body.appendChild(newScript);
+                });
+            });
+    
+        fetch("footer.html")
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById("footer").innerHTML = data;
+            });
     </script>
+    
 </body>
 </html>
 

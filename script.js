@@ -1,38 +1,78 @@
-// document.addEventListener("DOMContentLoaded", () => {
-//   // Form submission handling
-//   const forms = document.querySelectorAll("form")
-//   forms.forEach((form) => {
-//     form.addEventListener("submit", (e) => {
-//       e.preventDefault()
-//       alert("Form submitted successfully!")
-//     })
-//   })
+const firebaseConfig = {
+    apiKey: "AIzaSyAEEurR0FMrMt_2HwfTR6C2Db6KDvmfTaE",
+    authDomain: "vault-2c2cd.firebaseapp.com",
+    projectId: "vault-2c2cd",
+    storageBucket: "vault-2c2cd.appspot.com",
+    messagingSenderId: "911466241989",
+    appId: "1:911466241989:web:2736572e05c4abcd7135ac",
+    measurementId: "G-FYVRG02FE1"
+};
 
-//   const searchInput = document.querySelector(".search-container input")
-//   const searchButton = document.querySelector(".search-container button")
+let auth, db;
 
-//   searchButton.addEventListener("click", () => {
-//     performSearch()
-//   })
+try {
+    firebase.initializeApp(firebaseConfig);
+    auth = firebase.auth();
+    db = firebase.firestore();
+    alert('Connected to Firebase successfully!');
+} catch (error) {
+    console.error('Firebase initialization failed:', error);
+    alert(`Failed to connect to Firebase: ${error.message}`);
+}
 
-//   searchInput.addEventListener("keypress", (e) => {
-//     if (e.key === "Enter") {
-//       performSearch()
-//     }
-//   })
+// CRUD FUNCTIONS
 
-//   function performSearch() {
-//     const searchTerm = searchInput.value.trim().toLowerCase()
-//     const items = document.querySelectorAll(".item")
+// Create Item
+const reportItemForm = document.getElementById('report-item-form');
 
-//     items.forEach((item) => {
-//       const itemName = item.querySelector("h3").textContent.toLowerCase()
-//       if (itemName.includes(searchTerm)) {
-//         item.style.display = "block"
-//       } else {
-//         item.style.display = "none"
-//       }
-//     })
-//   }
-// })
+reportItemForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
 
+    const itemData = getItemFormData();
+
+    try {
+        await db.collection('items').add({
+            ...itemData,
+            userId: auth.currentUser ? auth.currentUser.uid : 'anonymous',
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        alert('Item reported successfully!');
+        window.location.href = 'index.html';
+    } catch (error) {
+        console.error('Error reporting item:', error);
+        alert(`Failed to report item: ${error.message}`);
+    }
+});
+
+
+
+
+
+// Helper Function to Get Form Data
+function getItemFormData() {
+    let imageUrls = [];
+    document.querySelectorAll('.image-url').forEach(input => {
+        if (input.value.trim() !== "") {
+            imageUrls.push(input.value.trim());
+        }
+    });
+
+    return {
+        name: document.getElementById('name').value,
+        description: document.getElementById('description').value,
+        type: document.getElementById('type').value,
+        category: document.getElementById('category').value,
+        color: document.getElementById('color').value,
+        brand: document.getElementById('brand').value,
+        uniqueFeatures: document.getElementById('unique-features').value,
+        reward: document.getElementById('reward').value,
+        contactMethod: document.getElementById('contact-method').value,
+        alternateContact: document.getElementById('alternate-contact').value,
+        location: document.getElementById('location').value,
+        landmark: document.getElementById('landmark').value,
+        date: document.getElementById('date').value,
+        time: document.getElementById('time').value,
+        notes: document.getElementById('notes').value,
+        imageUrls: imageUrls,
+    };
+}

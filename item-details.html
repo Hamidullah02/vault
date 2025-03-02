@@ -3,77 +3,275 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Item Details - Vault</title>
+    <title>Item Details</title>
     <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>   
 </head>
 <body>
     <div id="navbar"></div>
 
-
     <main>
-        <section class="item-details">
-            <h2>Item Details</h2>
-            <div class="item-container">
-                <div class="item-image">
-                    <img src="https://via.placeholder.com/400" alt="Item Image">
-                </div>
-                <div class="item-info">
-                    <h3 id="item-name">Item Name</h3>
-                    <p><i class="fas fa-map-marker-alt"></i> Location: <span id="item-location"></span></p>
-                    <p><i class="far fa-calendar-alt"></i> Date: <span id="item-date"></span></p>
-                    <p><i class="fas fa-info-circle"></i> Description: <span id="item-description"></span></p>
-                    <p><i class="fas fa-user"></i> Reported by: <span id="item-reporter"></span></p>
-                    <p><i class="fas fa-phone"></i> Contact: <span id="item-contact"></span></p>
-                    <a href="#" class="btn btn-large" id="contact-btn">Contact Owner</a>
+        <div id="item-details-container">
+            <h2 id="item-name"></h2>
+            
+            <div id="item-gallery">
+                <div id="item-images-container" class="gallery-images"></div>
+                <div class="gallery-nav">
+                    <button id="prev-img" class="gallery-btn"><i class="fas fa-chevron-left"></i></button>
+                    <div id="img-indicators"></div>
+                    <button id="next-img" class="gallery-btn"><i class="fas fa-chevron-right"></i></button>
                 </div>
             </div>
-        </section>
+            
+            <table id="item-details-table">
+                <tr>
+                    <th>Category</th>
+                    <td id="item-category"></td>
+                </tr>
+                <tr>
+                    <th>Color</th>
+                    <td id="item-color"></td>
+                </tr>
+                <tr>
+                    <th>Brand</th>
+                    <td id="item-brand"></td>
+                </tr>
+                <tr>
+                    <th>Unique Features</th>
+                    <td id="item-uniqueFeatures"></td>
+                </tr>
+                <tr>
+                    <th>Reward</th>
+                    <td id="item-reward"></td>
+                </tr>
+                <tr>
+                    <th>Alternate Contact</th>
+                    <td id="item-altContact"></td>
+                </tr>
+                <tr>
+                    <th>Landmark</th>
+                    <td id="item-landmark"></td>
+                </tr>
+                <tr>
+                    <th>Last Seen</th>
+                    <td id="item-location"></td>
+                </tr>
+                <tr>
+                    <th>Date</th>
+                    <td id="item-date"></td>
+                </tr>
+                <tr>
+                    <th>Time</th>
+                    <td id="item-time"></td>
+                </tr>
+                <tr>
+                    <th>Notes</th>
+                    <td id="item-notes"></td>
+                </tr>
+            </table>
+            
+            <div class="action-buttons">
+                <button id="contact-owner" class="btn primary-btn"><i class="fas fa-envelope"></i> Contact Owner</button>
+                <button id="back-to-list" class="btn secondary-btn"><i class="fas fa-arrow-left"></i> Back to List</button>
+            </div>
+        </div>
     </main>
 
-    <footer>
-        <div class="footer-content">
-            <div class="footer-section">
-                <h3>About Us</h3>
-                <p>Vault is dedicated to helping people reunite with their lost belongings.</p>
-            </div>
-            <div class="footer-section">
-                <h3>Quick Links</h3>
-                <ul>
-                    <li><a href="faq.html">FAQ</a></li>
-                    <li><a href="privacy-policy.html">Privacy Policy</a></li>
-                    <li><a href="terms-of-service.html">Terms of Service</a></li>
-                    <li><a href="contact.html">Contact Us</a></li>
-                </ul>
-            </div>
-            <div class="footer-section">
-                <h3>Connect With Us</h3>
-                <div class="social-icons">
-                    <a href="#"><i class="fab fa-facebook"></i></a>
-                    <a href="#"><i class="fab fa-twitter"></i></a>
-                    <a href="#"><i class="fab fa-instagram"></i></a>
-                </div>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <p>&copy; 2023 Vault. All rights reserved.</p>
-        </div>
-    </footer>
+    <div id="footer"></div>
 
+    <script src="auth.js"></script>
     <script src="script.js"></script>
     <script>
+        // Item ID for direct database query
+        let itemId = getQueryParam('id');
+        let currentImageIndex = 0;
+        let imageUrls = [];
+
+        // Function to get URL parameters
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param) || '';
+        }
+
+        // Function to display item details from Firebase
+        function displayItemDetails(itemId) {
+            if (!itemId) {
+                console.error("No item ID provided");
+                displayItemFromParams(); // Fallback to URL params
+                return;
+            }
+
+            db.collection('items').doc(itemId).get()
+                .then((doc) => {
+                    if (doc.exists) {
+                        const item = doc.data();
+                        populateItemDetails(item);
+                    } else {
+                        console.error("No such document!");
+                        displayItemFromParams(); // Fallback to URL params
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error getting document:", error);
+                    displayItemFromParams(); // Fallback to URL params
+                });
+        }
+
+        // Function to display item from URL parameters (fallback method)
+        function displayItemFromParams() {
+            document.getElementById('item-name').innerText = getQueryParam('name') || 'Item Name Not Available';
+            document.getElementById('item-category').innerText = getQueryParam('category') || 'N/A';
+            document.getElementById('item-color').innerText = getQueryParam('color') || 'N/A';
+            document.getElementById('item-brand').innerText = getQueryParam('brand') || 'N/A';
+            document.getElementById('item-uniqueFeatures').innerText = getQueryParam('uniqueFeatures') || 'N/A';
+            document.getElementById('item-reward').innerText = getQueryParam('reward') || 'N/A';
+            document.getElementById('item-altContact').innerText = getQueryParam('altContact') || 'N/A';
+            document.getElementById('item-landmark').innerText = getQueryParam('landmark') || 'N/A';
+            document.getElementById('item-location').innerText = getQueryParam('location') || 'N/A';
+            document.getElementById('item-date').innerText = getQueryParam('date') || 'N/A';
+            document.getElementById('item-time').innerText = getQueryParam('time') || 'N/A';
+            document.getElementById('item-notes').innerText = getQueryParam('notes') || 'N/A';
+
+            // Get image URLs from parameters
+            const imageParam = getQueryParam('imageUrls');
+            if (imageParam) {
+                imageUrls = imageParam.split(',').filter(url => url.trim() !== '');
+                if (imageUrls.length === 0) {
+                    imageUrls = ['https://via.placeholder.com/400x300?text=No+Image+Available'];
+                }
+                setupImageGallery();
+            } else {
+                imageUrls = ['https://via.placeholder.com/400x300?text=No+Image+Available'];
+                setupImageGallery();
+            }
+        }
+
+        // Function to populate item details from Firestore data
+        function populateItemDetails(item) {
+            document.getElementById('item-name').innerText = item.name || 'Item Name Not Available';
+            document.getElementById('item-category').innerText = item.category || 'N/A';
+            document.getElementById('item-color').innerText = item.color || 'N/A';
+            document.getElementById('item-brand').innerText = item.brand || 'N/A';
+            document.getElementById('item-uniqueFeatures').innerText = item.uniqueFeatures || 'N/A';
+            document.getElementById('item-reward').innerText = item.reward || 'N/A';
+            document.getElementById('item-altContact').innerText = item.altContact || item.alternateContact || 'N/A';
+            document.getElementById('item-landmark').innerText = item.landmark || 'N/A';
+            document.getElementById('item-location').innerText = item.location || 'N/A';
+            document.getElementById('item-date').innerText = item.date || 'N/A';
+            document.getElementById('item-time').innerText = item.time || 'N/A';
+            document.getElementById('item-notes').innerText = item.notes || 'N/A';
+
+            // Get image URLs from Firestore
+            if (item.imageUrls && Array.isArray(item.imageUrls) && item.imageUrls.length > 0) {
+                imageUrls = item.imageUrls;
+            } else {
+                imageUrls = ['https://via.placeholder.com/400x300?text=No+Image+Available'];
+            }
+            setupImageGallery();
+        }
+
+        // Function to set up the image gallery
+        function setupImageGallery() {
+            const imagesContainer = document.getElementById('item-images-container');
+            const imgIndicators = document.getElementById('img-indicators');
+            imagesContainer.innerHTML = '';
+            imgIndicators.innerHTML = '';
+            
+            // Create all image elements but only show the current one
+            imageUrls.forEach((url, index) => {
+                let img = document.createElement('img');
+                img.src = url;
+                img.alt = `Item Image ${index + 1}`;
+                img.className = 'gallery-img';
+                img.style.display = index === currentImageIndex ? 'block' : 'none';
+                imagesContainer.appendChild(img);
+                
+                //  indicator dot
+                let dot = document.createElement('span');
+                dot.className = 'img-indicator' + (index === currentImageIndex ? ' active' : '');
+                dot.dataset.index = index;
+                dot.addEventListener('click', () => {
+                    showImage(parseInt(index));
+                });
+                imgIndicators.appendChild(dot);
+            });
+            
+            // Set up navigation buttons
+            document.getElementById('prev-img').addEventListener('click', () => {
+                showImage(currentImageIndex - 1);
+            });
+            
+            document.getElementById('next-img').addEventListener('click', () => {
+                showImage(currentImageIndex + 1);
+            });
+            
+            // Show/hide navigation buttons based on number of images
+            const galleryNav = document.querySelector('.gallery-nav');
+            galleryNav.style.display = imageUrls.length > 1 ? 'flex' : 'none';
+        }
+        
+        // Function to show a specific image
+        function showImage(index) {
+            if (index < 0) index = imageUrls.length - 1;
+            if (index >= imageUrls.length) index = 0;
+            
+            const images = document.querySelectorAll('.gallery-img');
+            const indicators = document.querySelectorAll('.img-indicator');
+            
+            images.forEach((img, i) => {
+                img.style.display = i === index ? 'block' : 'none';
+            });
+            
+            indicators.forEach((dot, i) => {
+                dot.className = 'img-indicator' + (i === index ? ' active' : '');
+            });
+            
+            currentImageIndex = index;
+        }
+
+        // Setup action buttons
+        function setupActionButtons() {
+            document.getElementById('back-to-list').addEventListener('click', () => {
+                window.location.href = 'lost-items.html';
+            });
+            
+            document.getElementById('contact-owner').addEventListener('click', () => {
+                const altContact = document.getElementById('item-altContact').innerText;
+                if (altContact && altContact !== 'N/A') {
+                    alert(`Contact the owner at: ${altContact}`);
+                } else {
+                    alert('No contact information available. Please use your account details to contact.');
+                }
+            });
+        }
+
+        // Load navbar
         fetch("navbar.html")
-    .then(response => response.text())
-    .then(data => {
-        document.getElementById("navbar").innerHTML = data;
-        document.querySelectorAll("#navbar script").forEach(script => {
-            let newScript = document.createElement("script");
-            newScript.textContent = script.textContent;
-            document.body.appendChild(newScript);
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById("navbar").innerHTML = data;
+                document.querySelectorAll("#navbar script").forEach(script => {
+                    let newScript = document.createElement("script");
+                    newScript.textContent = script.textContent;
+                    document.body.appendChild(newScript);
+                });
+            });
+            
+            fetch("footer.html")
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById("footer").innerHTML = data;
+            });
+            
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            displayItemDetails(itemId);
+            setupActionButtons();
         });
-    });
     </script>
 </body>
 </html>
-

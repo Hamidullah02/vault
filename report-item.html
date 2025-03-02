@@ -14,7 +14,6 @@
 <body>
     <div id="navbar"></div>
 
-
     <main>
         <div class="form-container">
             <h2>Report Item</h2>
@@ -35,98 +34,101 @@
                     </select>
                 </div>
                 <div class="form-group">
+                    <label for="category">Category:</label>
+                    <select id="category" required>
+                        <option value="electronics">Electronics</option>
+                        <option value="clothing">Clothing</option>
+                        <option value="documents">Documents</option>
+                        <option value="jewelry">Jewelry</option>
+                        <option value="accessories">Accessories</option>
+                        <option value="bags">Bags</option>
+                        <option value="keys">Keys</option>
+                        <option value="others">Others</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="color">Color:</label>
+                    <input type="text" id="color" placeholder="e.g., Black, Red, Blue">
+                </div>
+                <div class="form-group">
+                    <label for="brand">Brand/Model:</label>
+                    <input type="text" id="brand" placeholder="e.g., iPhone 13, Nike, Samsung">
+                </div>
+                <div class="form-group">
+                    <label for="unique-features">Unique Identifiers:</label>
+                    <textarea id="unique-features" placeholder="Scratches, stickers, serial numbers"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="reward">Reward (Optional):</label>
+                    <input type="text" id="reward" placeholder="e.g., $20 or None">
+                </div>
+                <div class="form-group">
+                    <label for="contact-method">Preferred Contact Method:</label>
+                    <select id="contact-method" required>
+                        <option value="email">Email</option>
+                        <option value="phone">Phone</option>
+                        <option value="both">Both</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="alternate-contact">Alternate Contact Info (Optional):</label>
+                    <input type="text" id="alternate-contact" placeholder="Phone number or email">
+                </div>
+                <div class="form-group">
                     <label for="location">Location:</label>
                     <input type="text" id="location" required>
+                </div>
+                <div class="form-group">
+                    <label for="landmark">Nearby Landmark (Optional):</label>
+                    <input type="text" id="landmark" placeholder="Near cafeteria, library, etc.">
                 </div>
                 <div class="form-group">
                     <label for="date">Date:</label>
                     <input type="date" id="date" required>
                 </div>
                 <div class="form-group">
-                    <label for="image">Image:</label>
-                    <input type="file" id="image" accept="image/*">
+                    <label for="time">Time (Optional):</label>
+                    <input type="time" id="time">
                 </div>
+                <div class="form-group">
+                    <label for="notes">Additional Notes (Optional):</label>
+                    <textarea id="notes" placeholder="Any extra details or instructions"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="imageurl">Image URLs:</label>
+                    <div id="image-url-container">
+                        <input type="text" name="imageurls[]" class="image-url" placeholder="Enter image URL">
+                    </div>
+                    <button type="button" id="add-image-url" class="btn">Add Image</button>
+                </div>
+                
                 <button type="submit" class="btn">Report Item</button>
             </form>
         </div>
     </main>
 
-    <footer>
-        <div class="footer-content">
-            <div class="footer-section">
-                <h3>About Us</h3>
-                <p>Vault is dedicated to helping people reunite with their lost belongings.</p>
-            </div>
-            <div class="footer-section">
-                <h3>Quick Links</h3>
-                <ul>
-                    <li><a href="#">FAQ</a></li>
-                    <li><a href="#">Privacy Policy</a></li>
-                    <li><a href="#">Terms of Service</a></li>
-                    <li><a href="#">Contact Us</a></li>
-                </ul>
-            </div>
-            <div class="footer-section">
-                <h3>Connect With Us</h3>
-                <div class="social-icons">
-                    <a href="#">Facebook</a>
-                    <a href="#">Twitter</a>
-                    <a href="#">Instagram</a>
-                </div>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <p>&copy; 2023 Vault. All rights reserved.</p>
-        </div>
-    </footer>
+    <div id="footer"></div>
 
-    <script src="firebase-config.js"></script>
+
+    <script src="script.js"></script>
     <script src="auth.js"></script>
     <script>
-        const reportItemForm = document.getElementById('report-item-form');
 
-        reportItemForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
+const addImageUrlButton = document.getElementById('add-image-url');
+const imageUrlContainer = document.getElementById('image-url-container');
 
-            const name = document.getElementById('name').value;
-            const description = document.getElementById('description').value;
-            const type = document.getElementById('type').value;
-            const location = document.getElementById('location').value;
-            const date = document.getElementById('date').value;
-            const imageFile = document.getElementById('image').files[0];
+addImageUrlButton.addEventListener('click', () => {
+    const newImageUrlInput = document.createElement('input');
+    newImageUrlInput.type = 'text';
+    newImageUrlInput.name = 'imageUrls[]';
+    newImageUrlInput.classList.add('image-url');
+    newImageUrlInput.placeholder = 'Enter image URL';
 
-            try {
-                let imageUrl = '';
-                if (imageFile) {
-                    const storageRef = storage.ref(`items/${Date.now()}_${imageFile.name}`);
-                    await storageRef.put(imageFile);
-                    imageUrl = await storageRef.getDownloadURL();
-                }
-
-                const itemData = {
-                    name,
-                    description,
-                    type,
-                    location,
-                    date,
-                    imageUrl,
-                    userId: auth.currentUser.uid,
-                    createdAt: new Date()
-                };
-
-                await db.collection('items').add(itemData);
-                alert('Item reported successfully!');
-                window.location.href = 'index.html';
-            } catch (error) {
-                console.error('Error reporting item:', error);
-                alert('Failed to report item. Please try again.');
-            }
-        });
-    </script>
+    imageUrlContainer.appendChild(newImageUrlInput);
+});
 
 
-<script>
-    fetch("navbar.html")
+            fetch("navbar.html")
     .then(response => response.text())
     .then(data => {
         document.getElementById("navbar").innerHTML = data;
@@ -136,8 +138,13 @@
             document.body.appendChild(newScript);
         });
     });
-</script>
 
+
+    fetch("footer.html")
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById("footer").innerHTML = data;
+            });
+    </script>
 </body>
 </html>
-

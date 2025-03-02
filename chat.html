@@ -97,65 +97,6 @@
     <script src="firebase-config.js"></script>
     <script src="auth.js"></script>
     <script>
-        const chatMessages = document.getElementById('chat-messages');
-        const chatForm = document.getElementById('chat-form');
-        const messageInput = document.getElementById('message-input');
-        const urlParams = new URLSearchParams(window.location.search);
-        const itemId = urlParams.get('itemId');
-
-        let unsubscribe;
-
-        auth.onAuthStateChanged((user) => {
-            if (user) {
-                // Load and listen for messages
-                unsubscribe = db.collection('messages')
-                    .where('itemId', '==', itemId)
-                    .orderBy('createdAt')
-                    .onSnapshot((snapshot) => {
-                        snapshot.docChanges().forEach((change) => {
-                            if (change.type === 'added') {
-                                const message = change.doc.data();
-                                const messageElement = document.createElement('div');
-                                messageElement.classList.add('message');
-                                messageElement.classList.add(message.userId === user.uid ? 'sent' : 'received');
-                                messageElement.textContent = message.text;
-                                chatMessages.appendChild(messageElement);
-                            }
-                        });
-                        chatMessages.scrollTop = chatMessages.scrollHeight;
-                    });
-
-                // Enable form submission
-                chatForm.addEventListener('submit', async (e) => {
-                    e.preventDefault();
-                    const messageText = messageInput.value.trim();
-                    if (messageText) {
-                        try {
-                            await db.collection('messages').add({
-                                text: messageText,
-                                createdAt: new Date(),
-                                userId: user.uid,
-                                itemId: itemId
-                            });
-                            messageInput.value = '';
-                        } catch (error) {
-                            console.error('Error sending message:', error);
-                            alert('Failed to send message. Please try again.');
-                        }
-                    }
-                });
-            } else {
-                // User is not logged in, redirect to login page
-                window.location.href = 'login.html';
-            }
-        });
-
-        // Cleanup listener when leaving the page
-        window.addEventListener('unload', () => {
-            if (unsubscribe) {
-                unsubscribe();
-            }
-        });
     </script>
 </body>
 </html>

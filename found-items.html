@@ -34,54 +34,57 @@
     <script src="script.js"></script>
 
     <script>
-        const itemGrid = document.getElementById('item-grid');
-        const searchInput = document.getElementById('search-input');
-        const searchBtn = document.getElementById('search-btn');
+         
+function initSearch() {
+    const grid = document.getElementById('item-grid');
+    const input = document.getElementById('search-input');
+    const btn = document.getElementById('search-btn');
+    
+    function search() {
+        const term = input.value.trim().toLowerCase();
+        grid.innerHTML = '<p>Loading...</p>';
+        
+        db.collection('items').where('type', '==', 'found').get()
+            .then(snapshot => {
+                grid.innerHTML = '';
+                let found = false;
+                
+                snapshot.forEach(doc => {
+                    const item = doc.data();
+                    if (!term || 
+                        (item.name && item.name.toLowerCase().includes(term)) || 
+                        (item.description && item.description.toLowerCase().includes(term))) {
+                        
+                        const el = document.createElement('div');
+                        el.className = 'item';
+                        el.innerHTML = `
+                            ${item.resolved === true ? '<div class="resolved-seal">Resolved</div>' : ''}
+                            <img src="${item.imageUrls?.[0] || 'https://via.placeholder.com/150'}" alt="${item.name || ''}">
+                            <h3>${item.name || 'Unnamed item'}</h3>
+                            <p><i class="fas fa-map-marker-alt"></i> ${item.location || 'Unknown'}</p>
+                            <p><i class="far fa-calendar-alt"></i> ${item.date || 'Unknown'}</p>
+                            <a href="item-details.html?id=${doc.id}" class="btn">More Info</a>
+                        `;
+                        grid.appendChild(el);
+                        found = true;
+                    }
+                });
+                
+                if (!found) grid.innerHTML = '<p>No items found</p>';
+            })
+            .catch(err => {
+                console.error(err);
+                grid.innerHTML = '<p>Error loading items</p>';
+            });
+    }
+    
+    btn.addEventListener('click', search);
+    input.addEventListener('keypress', e => e.key === 'Enter' && search());
+    
+    search();
+}
 
-        function displayItem(doc) {
-    const item = doc.data();
-    const itemElement = document.createElement('div');
-    itemElement.className = 'item';
-
-    // Construct a URL with query parameters for item details
-    const detailsURL = `item-details.html?id=${doc.id}&name=${encodeURIComponent(item.name)}&location=${encodeURIComponent(item.location)}&date=${encodeURIComponent(item.date)}&imageUrls=${encodeURIComponent(item.imageUrls && Array.isArray(item.imageUrls) ? item.imageUrls.join(',') : 'https://via.placeholder.com/150')}&category=${encodeURIComponent(item.category || '')}&color=${encodeURIComponent(item.color || '')}&brand=${encodeURIComponent(item.brand || '')}&uniqueFeatures=${encodeURIComponent(item.uniqueFeatures || '')}&reward=${encodeURIComponent(item.reward || '')}&altContact=${encodeURIComponent(item.altContact || '')}&landmark=${encodeURIComponent(item.landmark || '')}&time=${encodeURIComponent(item.time || '')}&notes=${encodeURIComponent(item.notes || '')}`;
-
-itemElement.innerHTML = `
-    <img src="${item.imageUrls && item.imageUrls.length ? item.imageUrls[0] : 'https://via.placeholder.com/150'}" alt="${item.name}">
-    <h3>${item.name}</h3>
-    <p><i class="fas fa-map-marker-alt"></i> Last seen: ${item.location}</p>
-    <p><i class="far fa-calendar-alt"></i> Date: ${item.date}</p>
-    <a href="${detailsURL}" class="btn">More Info</a>
-`;
-
-itemGrid.appendChild(itemElement);
-        }
-
-
-
-        function fetchLostItems(queryText = '') {
-            itemGrid.innerHTML = '';
-
-            let query = db.collection('items').where('type', '==', 'found');
-            if (queryText) {
-                query = query.where('name', '>=', queryText).where('name', '<=', queryText + '\uf8ff');
-            }
-
-            query.get().then((querySnapshot) => {
-                if (querySnapshot.empty) {
-                    itemGrid.innerHTML = '<p>No items found.</p>';
-                    return;
-                }
-                querySnapshot.forEach(displayItem);
-            }).catch((error) => console.error('Error fetching items:', error));
-        }
-
-        fetchLostItems();
-
-        searchBtn.addEventListener('click', () => {
-            const queryText = searchInput.value.trim();
-            fetchLostItems(queryText);
-        });
+document.addEventListener('DOMContentLoaded', initSearch);
 
         fetch("navbar.html")
             .then(response => response.text())
@@ -93,7 +96,6 @@ itemGrid.appendChild(itemElement);
                     document.body.appendChild(newScript);
                 });
             });
-
             fetch("footer.html")
             .then(response => response.text())
             .then(data => {

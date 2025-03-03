@@ -19,7 +19,6 @@ try {
     alert(`Failed to connect to Firebase: ${error.message}`);
 }
 
-
 // Create Item
 const reportItemForm = document.getElementById('report-item-form');
 
@@ -41,10 +40,6 @@ reportItemForm.addEventListener('submit', async (e) => {
     }
 });
 
-
-
-
-
 // Helper Function to Get Form Data
 function getItemFormData() {
     let imageUrls = [];
@@ -53,6 +48,10 @@ function getItemFormData() {
             imageUrls.push(input.value.trim());
         }
     });
+
+    // Get the contact info fields
+    const primaryContact = document.getElementById('primary-contact').value.trim();
+    const alternateContact = document.getElementById('alternate-contact').value.trim();
 
     return {
         name: document.getElementById('name').value,
@@ -63,13 +62,23 @@ function getItemFormData() {
         brand: document.getElementById('brand').value,
         uniqueFeatures: document.getElementById('unique-features').value,
         reward: document.getElementById('reward').value,
-        contactMethod: document.getElementById('contact-method').value,
-        alternateContact: document.getElementById('alternate-contact').value,
+        primaryContact: primaryContact ? primaryContact : null,  // Ensure null if empty
+        alternateContact: alternateContact ? alternateContact : null,  // Ensure null if empty
         location: document.getElementById('location').value,
         landmark: document.getElementById('landmark').value,
         date: document.getElementById('date').value,
         time: document.getElementById('time').value,
         notes: document.getElementById('notes').value,
+        resolved:false,
         imageUrls: imageUrls,
     };
 }
+
+
+
+
+
+
+
+
+

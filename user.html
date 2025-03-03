@@ -42,18 +42,51 @@
 
     <div id="footer"></div>
 
+    <!-- Edit Item Popup -->
+    <div id="popup" class="popup">
+        <div class="popup-content">
+            <span class="close" onclick="closeEditPopup()">&times;</span>
+            <h3>Edit Item</h3>
+            <form id="edit-item-form">
+                <input type="text" id="edit-name" placeholder="Item Name" required><br>
+                <input type="text" id="edit-description" placeholder="Description" required><br>
+                <input type="text" id="edit-type" placeholder="Type" required><br>
+                <input type="text" id="edit-category" placeholder="Category" required><br>
+                <input type="text" id="edit-color" placeholder="Color" required><br>
+                <input type="text" id="edit-brand" placeholder="Brand" required><br>
+                <input type="text" id="edit-unique-features" placeholder="Unique Features" required><br>
+                <input type="text" id="edit-reward" placeholder="Reward" required><br>
+                <input type="text" id="edit-primary-contact" placeholder="Primary Contact" required><br>
+                <input type="text" id="edit-alternate-contact" placeholder="Alternate Contact" required><br>
+                <input type="text" id="edit-location" placeholder="Location" required><br>
+                <input type="text" id="edit-landmark" placeholder="Landmark" required><br>
+                <input type="date" id="edit-date" required><br>
+                <input type="time" id="edit-time" required><br>
+                <textarea id="edit-notes" placeholder="Notes" required></textarea><br>
+                
+                <!-- Multiple Image Inputs -->
+                <div id="edit-image-urls-container">
+                    <input type="url" class="image-url-input" placeholder="Image URL" required><br>
+                </div>
+                <button type="button" onclick="addImageField()">Add Image</button><br>
+                
+                <button type="submit">Save Changes</button>
+            </form>
+        </div>
+    </div>
 
     <script src="auth.js"></script>
     <script>
-       const firebaseConfig = {
-    apiKey: "AIzaSyAEEurR0FMrMt_2HwfTR6C2Db6KDvmfTaE",
-    authDomain: "vault-2c2cd.firebaseapp.com",
-    projectId: "vault-2c2cd",
-    storageBucket: "vault-2c2cd.appspot.com",
-    messagingSenderId: "911466241989",
-    appId: "1:911466241989:web:2736572e05c4abcd7135ac",
-    measurementId: "G-FYVRG02FE1"
-};
+        const firebaseConfig = {
+            apiKey: "AIzaSyAEEurR0FMrMt_2HwfTR6C2Db6KDvmfTaE",
+            authDomain: "vault-2c2cd.firebaseapp.com",
+            projectId: "vault-2c2cd",
+            storageBucket: "vault-2c2cd.appspot.com",
+            messagingSenderId: "911466241989",
+            appId: "1:911466241989:web:2736572e05c4abcd7135ac",
+            measurementId: "G-FYVRG02FE1"
+        };
+
         firebase.initializeApp(firebaseConfig);
 
         const db = firebase.firestore();
@@ -84,33 +117,149 @@
                     const item = doc.data();
                     const row = `
                         <tr>
-                            <td><img style="height:100px;width:auto;" src="${item.imageUrls && item.imageUrls.length ? item.imageUrls[0] : 'https://via.placeholder.com/150'}" alt="${item.name}"></td>
+                            <td>
+                            <img style="height:100px;width:auto;" src="${item.imageUrls && item.imageUrls.length ? item.imageUrls[0] : 'https://via.placeholder.com/150'}" alt="${item.name}"></td>
                             <td>${item.name}</td>
                             <td>${item.category}</td>
                             <td>${item.date}</td>
-                            <td><a href="item-details.html?id=${doc.id}">View</a></td>
+                            <td>
+                                <button onclick="openEditPopup('${doc.id}')">Edit</button>
+                                <button onclick="deleteItem('${doc.id}')">Delete</button>
+                                <button onclick="viewItem('${doc.id}')">View</button>
+                                <button onclick="markResolved('${doc.id}')">Resolve</button> <!-- Resolved button -->
+                            </td>
                         </tr>
                     `;
                     table.innerHTML += row;
                 });
             });
-
-           
         }
 
-        // Load navbar
+        function openEditPopup(itemId) {
+            db.collection("items").doc(itemId).get().then(doc => {
+                const item = doc.data();
+                document.getElementById("edit-name").value = item.name;
+                document.getElementById("edit-description").value = item.description;
+                document.getElementById("edit-type").value = item.type;
+                document.getElementById("edit-category").value = item.category;
+                document.getElementById("edit-color").value = item.color;
+                document.getElementById("edit-brand").value = item.brand;
+                document.getElementById("edit-unique-features").value = item.uniqueFeatures;
+                document.getElementById("edit-reward").value = item.reward;
+                document.getElementById("edit-primary-contact").value = item.primaryContact;
+                document.getElementById("edit-alternate-contact").value = item.alternateContact;
+                document.getElementById("edit-location").value = item.location;
+                document.getElementById("edit-landmark").value = item.landmark;
+                document.getElementById("edit-date").value = item.date;
+                document.getElementById("edit-time").value = item.time;
+                document.getElementById("edit-notes").value = item.notes;
+
+                const imageContainer = document.getElementById("edit-image-urls-container");
+                imageContainer.innerHTML = '';
+                item.imageUrls.forEach(url => {
+                    const input = document.createElement('input');
+                    input.type = 'url';
+                    input.classList.add('image-url-input');
+                    input.placeholder = 'Image URL';
+                    input.value = url;
+                    imageContainer.appendChild(input);
+                    imageContainer.appendChild(document.createElement('br'));
+                });
+
+                document.getElementById("popup").style.display = "block";
+                document.getElementById("edit-item-form").onsubmit = function(e) {
+                    e.preventDefault();
+                    saveChanges(itemId);
+                };
+            });
+        }
+
+        function closeEditPopup() {
+            document.getElementById("popup").style.display = "none";
+        }
+
+        function saveChanges(itemId) {
+            // Get all image URLs
+            const imageUrls = Array.from(document.getElementsByClassName('image-url-input'))
+                .map(input => input.value);
+
+            const updatedItemData = {
+                name: document.getElementById("edit-name").value,
+                description: document.getElementById("edit-description").value,
+                type: document.getElementById("edit-type").value,
+                category: document.getElementById("edit-category").value,
+                color: document.getElementById("edit-color").value,
+                brand: document.getElementById("edit-brand").value,
+                uniqueFeatures: document.getElementById("edit-unique-features").value,
+                reward: document.getElementById("edit-reward").value,
+                primaryContact: document.getElementById("edit-primary-contact").value,
+                alternateContact: document.getElementById("edit-alternate-contact").value,
+                location: document.getElementById("edit-location").value,
+                landmark: document.getElementById("edit-landmark").value,
+                date: document.getElementById("edit-date").value,
+                time: document.getElementById("edit-time").value,
+                notes: document.getElementById("edit-notes").value,
+                imageUrls: imageUrls
+            };
+
+            db.collection("items").doc(itemId).update(updatedItemData)
+                .then(() => {
+                    alert("Item updated successfully!");
+                    closeEditPopup();
+                    window.location.reload();
+                })
+                .catch(error => {
+                    console.error("Error updating item: ", error);
+                    alert("Failed to update item: " + error.message);
+                });
+        }
+
+        function addImageField() {
+            const container = document.getElementById("edit-image-urls-container");
+            const input = document.createElement('input');
+            input.type = 'url';
+            input.classList.add('image-url-input');
+            input.placeholder = 'Image URL';
+            container.appendChild(input);
+            container.appendChild(document.createElement('br'));
+        }
+
+        function deleteItem(itemId) {
+            db.collection("items").doc(itemId).delete()
+                .then(() => {
+                    window.location.reload();
+                })
+                .catch(error => {
+                    console.error("Error deleting item: ", error);
+                    alert("Failed to delete item: " + error.message);
+                });
+        }
+
+        function viewItem(itemId) {
+            window.location.href = `item-details.html?id=${itemId}`;
+        }
+
+        function markResolved(itemId) {
+            db.collection("items").doc(itemId).update({ resolved: true })
+                .then(() => {
+                    window.location.reload();
+                })
+                .catch(error => {
+                    console.error("Error marking item as resolved: ", error);
+                    alert("Failed to mark item as resolved: " + error.message);
+                });
+        }
+
         fetch("navbar.html")
             .then(response => response.text())
             .then(data => {
                 document.getElementById("navbar").innerHTML = data;
                 document.querySelectorAll("#navbar script").forEach(script => {
-                    const newScript = document.createElement("script");
-                    newScript.textContent = script.textContent;
-                    document.body.appendChild(newScript);
+                    eval(script.innerText);
                 });
             });
 
-            fetch("footer.html")
+        fetch("footer.html")
             .then(response => response.text())
             .then(data => {
                 document.getElementById("footer").innerHTML = data;

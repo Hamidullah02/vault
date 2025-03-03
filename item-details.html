@@ -33,12 +33,15 @@
                 <tr><th>Brand</th><td id="item-brand"></td></tr>
                 <tr><th>Unique Features</th><td id="item-uniqueFeatures"></td></tr>
                 <tr><th>Reward</th><td id="item-reward"></td></tr>
+                <tr><th>Contact</th><td id="item-Contact"></td></tr>
                 <tr><th>Alternate Contact</th><td id="item-altContact"></td></tr>
                 <tr><th>Landmark</th><td id="item-landmark"></td></tr>
                 <tr><th>Last Seen</th><td id="item-location"></td></tr>
                 <tr><th>Date</th><td id="item-date"></td></tr>
                 <tr><th>Time</th><td id="item-time"></td></tr>
                 <tr><th>Notes</th><td id="item-notes"></td></tr>
+                <tr><th>Description</th><td id="item-description"></td></tr>
+
             </table>
             
             <div class="action-buttons">
@@ -60,7 +63,6 @@
         let currentIndex = 0;
         let images = [];
 
-        // Get URL parameter
         function getParam(param) {
             return new URLSearchParams(window.location.search).get(param) || '';
         }
@@ -91,12 +93,15 @@
                 brand: 'item-brand',
                 uniqueFeatures: 'item-uniqueFeatures',
                 reward: 'item-reward',
-                altContact: 'item-altContact',
+                primaryContact:'item-Contact',
+                alternateContact: 'item-altContact',
                 landmark: 'item-landmark',
                 location: 'item-location',
                 date: 'item-date',
                 time: 'item-time',
-                notes: 'item-notes'
+                notes: 'item-notes',
+                description: 'item-description'
+
             };
 
             Object.entries(fields).forEach(([param, id]) => {
@@ -120,12 +125,15 @@
                 brand: 'item-brand',
                 uniqueFeatures: 'item-uniqueFeatures',
                 reward: 'item-reward',
-                altContact: 'item-altContact',
+                primaryContact: 'item-Contact',
+                alternateContact: 'item-altContact',
                 landmark: 'item-landmark',
                 location: 'item-location',
                 date: 'item-date',
                 time: 'item-time',
-                notes: 'item-notes'
+                notes: 'item-notes',
+                description: 'item-description'
+
             };
 
             Object.entries(fields).forEach(([key, id]) => {
@@ -150,7 +158,6 @@
                 img.style.display = index === 0 ? 'block' : 'none';
                 container.appendChild(img);
 
-                //  dot
                 const dot = document.createElement('span');
                 dot.className = `dot ${index === 0 ? 'active' : ''}`;
                 dot.onclick = () => showImage(index);
@@ -195,7 +202,7 @@
                 if (e.key === 'ArrowRight') showImage(currentIndex + 1);
             });
 
-            // navbar and footer
+
             fetch("navbar.html")
                 .then(res => res.text())
                 .then(html => {

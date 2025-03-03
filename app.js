@@ -18,16 +18,6 @@ document.addEventListener("DOMContentLoaded", () => {
     burger.classList.toggle("toggle")
   })
 
-  // Smooth scrolling for anchor links
-  document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
-    anchor.addEventListener("click", function (e) {
-      e.preventDefault()
-
-      document.querySelector(this.getAttribute("href")).scrollIntoView({
-        behavior: "smooth",
-      })
-    })
-  })
 
   // Fade-in animation for elements
   const fadeElems = document.querySelectorAll(".fade-in")
